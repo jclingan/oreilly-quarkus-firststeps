@@ -1,0 +1,50 @@
+== Introduction
+
+This tutorial builds two Java services from scratch that incrementally
+adds functionality. The first is a _Greeting Service_ that returns a greeting.
+The second is a _Training Service_ that persists Training courses and
+students.
+The _Training Service_ invokes the _Greeting Service_ for a message
+to greet students.
+This domain model is simple, so the focus is spent on the tutorial APIs and
+concepts.
+
+The documented steps in this tutorial follow a pattern:
+
+. Write code
+. Test the code (`curl` or `mvn test`)
+. Check output
+
+This pattern flows quickly due to Quarkus' Live Coding feature and makes
+checking code changes near-instantaneous, so each change is immediately
+evaluated.
+
+NOTE: This tutorial will require three terminal windows.
+Each command block will display the terminal where a command runs -
+_Terminal 1_, _Terminal 2_, or _Terminal 3_.
+It helps to organize the terminals, so they are all visible.
+In addition, each code block will show the name of the file to be
+edited (ex: "StudentResource.java")
+
+== Setup Local Repository
+
+. Clone the project to your local system
++
+--
+.Terminal 1
+----
+$ git clone \
+  https://github.com/jclingan/oreilly-quarkus-firststeps \
+  firststeps
+----
+.Terminal 1 Output
+....
+Cloning into 'firststeps'...
+remote: Enumerating objects: 467, done.
+remote: Counting objects: 100% (467/467), done.
+remote: Compressing objects: 100% (292/292), done.
+remote: Total 467 (delta 224), reused 359 (delta 123), pack-reused 0
+Receiving objects: 100% (467/467), 2.55 MiB | 2.36 MiB/s, done.
+Resolving deltas: 100% (224/224), done.
+....
+--

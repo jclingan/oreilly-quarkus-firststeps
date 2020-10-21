@@ -1,0 +1,37 @@
+= Setup scripts and configuration files
+
+== ELK stack
+`docker-compose -f docker/elk.yml up`
+
+== Start keycloak
+Run `start-keycloak.sh`
+
+This will start keycloak from scratch each time, importing the
+configuration from `keycloak-quarkus-realm.json` each time.
+
+While not necessary for this tutorial, to log into the console:
+
+. In browser, go to http://localhost:8088
+. User: *admin*
+. Password: *admin*
+
+== Export configuration
+
+If updates are made to the configuration and you prefer that configuration
+over the provided one, then run:
+
+. Start keycloak per above
+. Run export-keycloak.sh
+. In a separate window, run:
++
+--
+.Terminal
+[source,shell script]
+----
+docker \
+    exec \
+    keycloak \
+    cat /tmp/my_quarkus_realm.json > keycloak-quarkus-realm.json
+----
+--
+. CTRL-C in the terminal in the prior step

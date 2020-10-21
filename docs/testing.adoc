@@ -1,0 +1,514 @@
+== Quarkus Testing
+
+This section covers testing applications with Quarkus.
+
+. Review generated `FirstStepsResourceTest` class
++
+--
+.FirstStepsResourceTest.java
+[source, java]
+----
+@QuarkusTest                                // <1>
+public class FirstStepsResourceTest {
+
+    @Test                                   // <2>
+    public void testHelloEndpoint() {
+        given()                             // <3>
+          .when().get("/firststeps")        // <4>
+          .then()                           // <5>
+             .statusCode(200)               // <6>
+             .body(is("hello"));            // <7>
+    }
+
+}
+----
+<1> `@QuarkusTest` bootstraps Quarkus on port 8081
+<2> JUnit test
+<3> RestAssured static method.
+Given defines REST call parameters.
+There are none in this particular test
+<4> Invokes http endpoint
+<5> Begin to validate / assert response
+<6> Validate the response code of _200_
+<7> Validate the response is _hello_
+--
++
+// *********************************************
+'''
+
+. Run the test
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn test
+----
+
+.Terminal 3 output
+[source,text]
+----
+...
+
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+
+...
+----
+--
++
+// *********************************************
+'''
+
+. Add methods to `FirstStepsResource.java` to invoke the greeting
+service `/list/random` and `/list` endpoints
++
+--
+.
+[source,java]
+----
+@Inject
+@RestClient
+GreetingsRestClient client;               // <1>
+
+@GET
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Path("/list")
+public List<String> listGreetings() {
+    return client.listGreetings();
+}
+
+@GET
+@Produces(MediaType.TEXT_PLAIN)
+@Consumes(MediaType.TEXT_PLAIN)
+@Path("/random")
+public String getRandom() {
+    return client.randomGreeting();
+}
+----
+<1> Use the Rest Client to invoke the greeting service endoints
+--
++
+// *********************************************
+'''
+
+. Create test to test the Rest Client call
++
+// *********************************************
+'''
+
+. Run the test
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn test
+----
+
+.Terminal 3 output
+[source,text]
+----
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+----
+--
++
+// *********************************************
+'''
+
+. Update `FirstStepsResourceTest` to test JSON response
++
+--
+.FirstStepsResourceTest.java
+[source,java]
+----
+@Test
+public void testRestClient() {
+    given()
+        .accept(ContentType.JSON)
+    .when().get("/firststeps/list")
+    .then()
+        .body("[0]", is("Howdy from app.prop"))    // <1>
+        .body("[1]", is("Hola from app.prop"))     // <1>
+        .body("[2]", is("Hello from app.prop"));   // <1>
+}
+----
+<1> Provide a JSON path expresion to match/validate.
+This expression gets first, second, and third entry (index starts at zero).
+Because the matcher is `is()`,
+--
++
+// *********************************************
+'''
+
+. Annotate `FirstStepsResourceTest` with @TestHttpEndpoint to abstract
+top-level PATH from tests
+
++
+--
+.FirstStepsResourceTest.java
+[source,java]
+----
+@QuarkusTest
+@TestHTTPEndpoint(FirstStepsResource.class)     // <1>
+public class FirstStepsResourceTest {
+
+...
+----
+<1> Use the top-level path defined in the  JAX-RS Resource class ("/firststeps")
+--
++
+// *********************************************
+'''
+
+. Remove "/firststeps" from test URLs
++
+--
+.FirstStepsResourceTest.java
+[source,java]
+----
+public void testHelloEndpoint() {
+    given()
+        .when().get()                 // <1>
+        .then()
+...
+
+public void testRestClient() {
+    given()
+        .accept(ContentType.JSON)
+        .when().get("/list")          // <1>
+...
+
+public void testRestClientAll() {
+    given()
+        .accept(ContentType.JSON)
+        .when().get("/list")
+...
+----
+<1> Removed the leading "/firststeps"
+--
++
+// *********************************************
+'''
+
+. Run tests to validate the change works
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn test
+----
+
+.Terminal 3 output
+[source,text]
+----
+...
+
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+
+...
+----
+--
++
+// *********************************************
+'''
+
+. Update `FirstStepsResourceTest.java` to test random greeting
++
+--
+.FirstStepsResourceTest.java
+[source,java]
+----
+@Test
+public void testRestClientRandom() {
+    String string =
+            given()
+            .accept(ContentType.TEXT)
+            .when().get("/random")
+            .body().asString();                    // <1>
+
+    assertThat(string,                             // <2>
+            anyOf(is("Howdy from app.prop"),       // <3>
+                    is("Hola from app.prop"),
+                    is("Hello from app.prop")));
+}
+----
+<1> Get the REST response as a string (it is a text/plain media type)
+<2> Standalone assertion instead of asserting directly in the response
+<3> anyOf() validates that at least one of multiple conditions is true
+--
++
+// *********************************************
+'''
+
+. Test testRestClientRandom code
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn test
+----
+
+.Terminal 3 output
+[source,text]
+----
+....
+
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+
+....
+----
+--
++
+// *********************************************
+'''
+
+. Stop the _Greeting Service_
++
+--
+.Terminal 1
+[source,shell script]
+----
+CTRL-C          # <1>
+----
+<1>  Press CTRL-C in Terminal 1 to stop the greeting service
+--
++
+// *********************************************
+'''
+
+. Test the _FirstSteps Service_
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn test
+----
+
+.Terminal 3 output
+[source,text]
+----
+...      # Lots of Java exceptions because Greeetings Service is down
+
+[INFO]
+[ERROR] Tests run: 3, Failures: 2, Errors: 0, Skipped: 0   <1>
+[INFO]
+
+...
+----
+<1> Most tests fail
+--
++
+// *********************************************
+'''
+
+. Mock the service endoints using CDI alternatives.
+Create the `CDIMockGreetingService` class that
+implements the _Greeting Service_ functions.
+Technically, this class is not mocking the greeting
+service but mocking the _FirstStepsResource_ methods
+that invoke the greeting service.
+This idea in this step is just to show how methods
+can be mocked using CDI alternatives.
++
+--
+.CDIMockGreetingSerevice.java
+[source,java]
+----
+//@Mock
+@ApplicationScoped
+public class CDIMockGreetingService extends FirstStepsResource {
+    @Override
+    public List<String> listGreetings() {
+       return Arrays.asList("Howdy from app.prop",
+               "Hola from app.prop",
+               "Hello from app.prop");
+    }
+
+    @Override
+    public String getRandom() {
+        Random r = new Random();
+        List<String> greetings = listGreetings();
+        return greetings.get(r.nextInt(listGreetings().size()));
+    }
+}
+----
+
+NOTE: @Mock is always active.
+Make sure the mocking class is in the `src/test/java` directory tree so it
+is only active during tests.
+--
++
+// *********************************************
+'''
+
+. Test the mock
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn test
+----
+
+.Terminal 3 output
+[source,text]
+----
+...
+
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+
+...
+----
+--
++
+// *********************************************
+'''
+
+. Disable CDI alternative mocking to prepare for using wiremock
++
+--
+.CDIMockGreetingService.java
+[source,java]
+----
+//@Mock     <1>
+----
+<1> The easiest way to disable it is to comment out the @Mock annotation
+--
++
+// *********************************************
+'''
+
+. Add wiremock dependency to begin mocking the _Greeting Service_
++
+--
+.pom.xml
+[source,xml]
+----
+<dependency>
+  <groupId>com.github.tomakehurst</groupId>
+  <artifactId>wiremock-jre8</artifactId>
+  <version>2.26.3</version>
+  <scope>test</scope>
+</dependency>
+----
+--
++
+// *********************************************
+'''
+
+. Create the wiremock class to mock the Greeting service
++
+--
+.WiremockGreetingService.java
+[source,java]
+----
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+
+public class WiremockGreetingService
+    implements QuarkusTestResourceLifecycleManager {                   // <1>
+
+  private WireMockServer wireMockServer;
+
+  @Override
+  public Map<String, String> start() {
+    wireMockServer = new WireMockServer(options().dynamicPort());      // <2>
+    wireMockServer.start();                                            // <3>
+
+    wireMockServer.stubFor(get(urlEqualTo("/greeting"))                // <4>
+        .willReturn(aResponse()
+            .withHeader("Content-Type", "text/plain")                  // <5>
+            .withBody("hello")));                                      // <6>
+
+    wireMockServer.stubFor(get(urlEqualTo("/greeting/list"))           // <7>
+        .willReturn(aResponse()
+          .withHeader("Content-Type", "application/json")              // <8>
+          .withBody("[\"Howdy from app.prop\"," +
+              "\"Hola from app.prop\"," +
+              "\"Hello from app.prop\"]")));
+
+    wireMockServer.stubFor(get(urlEqualTo("/greeting/list/random"))    // <9>
+        .willReturn(aResponse()
+          .withHeader("Content-Type", "text/plain")
+          .withBody("Howdy from app.prop")));
+
+    return Collections
+        .singletonMap("org.acme.GreetingsRestClient/mp-rest/url",      // <10>
+        wireMockServer.baseUrl());
+}
+
+    @Override
+    public void stop() {
+        if (null != wireMockServer) {
+            wireMockServer.stop();                                     // <11>
+        }
+    }
+}
+----
+<1> Starting/stopping the wiremock server ties into the Quarkus lifecycle of
+Quarkus.
+When Quarkus starts/stops, the wiremock server will start/stop first
+<2> Pick a random port for run wiremock to listen on
+<3> Start the wiremock server when Quarkus lifcycle manager invokes start()
+<4> Create a stub that responds to the "/greeting" endpoint
+<5> Define a content type header
+<6> Response body is "hello"
+<7> Stub responds to "/greeting/list" endpoint.
+<8> Content type is "application/json"
+<9> Stub responds to /greeting/list/random.
+To keep this example simple, it hard codes a response
+<10> Override the GreetingsRestClient URL property to listen to
+proper endpoint (with dynamic port)
+<11> Stop the wiremock server
+--
++
+// *********************************************
+'''
+
+. Annotate `FirstStepsResourceTest`
+with@QuarkusTestResource(WiremockGreetingService.class) to start resources
+before Quarkus boots the application
++
+--
+.
+[source,java]
+----
+@QuarkusTest
+@TestHTTPEndpoint(FirstStepsResource.class)
+@QuarkusTestResource(WiremockGreetingService.class)     // <1>
+public class FirstStepsResourceTest {
+----
+<1> Start Wiremock service before Quarkus application starts
+--
++
+// *********************************************
+'''
+
+. Test the wiremock service
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn test
+----
+
+.Terminal 3 output
+[source,shell script]
+----
+2020-10-18 20:22:50,259 INFO  [org.ecl.jet.uti.log] (main) Logging initialized @2076ms to org.eclipse.jetty.util.log.Slf4jLog
+2020-10-18 20:22:50,350 INFO  [org.ecl.jet.ser.Server] (main) jetty-9.4.18.v20190429; built: 2019-04-29T20:42:08.989Z; git: e1bc35120a6617ee3df052294e433f3a25ce7097; jvm 11.0.8+10-jvmci-20.2-b03
+2020-10-18 20:22:50,373 INFO  [org.ecl.jet.ser.han.ContextHandler] (main) Started o.e.j.s.ServletContextHandler@167279d1{/__admin,null,AVAILABLE}
+2020-10-18 20:22:50,376 INFO  [org.ecl.jet.ser.han.ContextHandler] (main) Started o.e.j.s.ServletContextHandler@730e5763{/,null,AVAILABLE}
+
+...
+
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+
+...
+----
+--

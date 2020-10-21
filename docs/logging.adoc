@@ -1,0 +1,438 @@
+== Quarkus Logging
+
+This section covers Quarkus logging.
+The logging implementation is JBoss Logging, which is configured using
+application.properties.
+
+. Simplify the logging output to better demonstrate logging
++
+--
+.Add to application.properties
+[source,properties]
+----
+# Simplify console output
+
+quarkus.log.console.format=%-5p [%c{3.}] %s%e%n   # <1>
+----
+<1> Display Priority (`%-5p`), category (`[%c{3.}]`),
+and simple message/exception/newline (`%s%e%n`).
+See https://quarkus.io/guides/logging#logging-format[Logging Format].
+--
++
+// *********************************************
+'''
+
+. Create a logging class with a loggingLevels method and REST endpoint to
+print out logging levels
++
+--
+.LoggingResource.java
+[source, java]
+----
+@Path("/logging")
+public class LoggingResource {
+    private static final
+    Logger LOG = Logger.getLogger(LoggingResource.class);                   // <1>
+
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getLogging() {                                            // <2>
+        logginglevels();
+        return "Check log output";
+    }
+
+    void logginglevels() {
+      System.out.println("----------------------------------------");
+      LOG.fatal("***** " + LOG.getClass().getSimpleName() + ": FATAL *****");//<3>
+      LOG.error("***** " + LOG.getClass().getSimpleName() + ": ERROR *****");
+      LOG.warn("***** " + LOG.getClass().getSimpleName() + ": WARN *****");
+      LOG.info("***** " + LOG.getClass().getSimpleName() + ": INFO *****");
+      LOG.debug("***** " + LOG.getClass().getSimpleName() + ": DEBUG *****");
+      LOG.trace("***** " + LOG.getClass().getSimpleName() + ": TRACE *****");
+    }
+}
+----
+<1> Get a logger
+<2> Create rest point to print out levels
+<3> Print output at logging levels
+--
+
++
+// *********************************************
+'''
+. Change logging level in application.properties
++
+--
+.application.properties
+[source,properties]
+----
+quarkus.log.level=TRACE   # <1>
+----
+<1> Print all messages.
+--
++
+// *********************************************
+'''
+
+. Test TRACE log level
++
+--
+.Terminal 2
+[source,shell script]
+----
+ curl -i http://localhost:8080/logging
+----
+
+.Terminal 2 Output
+----
+...
+
+DEBUG [io.qua.res.runtime] Create resource constructor: public org.acme.GreetingResource()
+INFO  [io.quarkus] greeting 1.0-SNAPSHOT on JVM (powered by Quarkus 1.9.0.CR1) started in 0.612s. Listening on: http://0.0.0.0:8080
+INFO  [io.quarkus] Profile dev activated. Live Coding activated.
+INFO  [io.quarkus] Installed features: [cdi, resteasy, resteasy-jsonb]
+INFO  [io.qua.dep.dev.RuntimeUpdatesProcessor] Hot replace total time: 0.621s
+DEBUG [org.jbo.res.res.i18n] RESTEASY002315: PathInfo: /logging
+----------------------------------------
+FATAL [org.acm.GreetingResource] ***** JBossLogManagerLogger: FATAL *****
+ERROR [org.acm.GreetingResource] ***** JBossLogManagerLogger: ERROR *****
+WARN  [org.acm.GreetingResource] ***** JBossLogManagerLogger: WARN *****
+INFO  [org.acm.GreetingResource] ***** JBossLogManagerLogger: INFO *****
+DEBUG [org.acm.GreetingResource] ***** JBossLogManagerLogger: DEBUG *****
+TRACE [org.acm.GreetingResource] ***** JBossLogManagerLogger: TRACE *****
+DEBUG [org.jbo.res.res.i18n] MessageBodyWriter: org.jboss.resteasy.core.providerfactory.SortedKey
+DEBUG [org.jbo.res.res.i18n] MessageBodyWriter: org.jboss.resteasy.plugins.providers.StringTextStar
+
+...
+----
+--
++
+// *********************************************
+'''
+
+. Limit console output to INFO
++
+.Add to application.properties
++
+--
+[source,properties]
+----
+quarkus.log.console.level=INFO        # <1>
+----
+<1> Limit console output to INFO (Default setting)
+--
++
+// *********************************************
+'''
+
+. Test TRACE log level
++
+--
+.Terminal 2
+[source,shell script]
+----
+ curl -i http://localhost:8080/logging
+----
+
+.Terminal 2 Output
+----
+----------------------------------------
+FATAL [org.acm.GreetingResource] ***** JBossLogManagerLogger: FATAL *****
+ERROR [org.acm.GreetingResource] ***** JBossLogManagerLogger: ERROR *****
+WARN  [org.acm.GreetingResource] ***** JBossLogManagerLogger: WARN *****
+INFO  [org.acm.GreetingResource] ***** JBossLogManagerLogger: INFO *****
+----
+--
++
+// *********************************************
+'''
+
+. Log all REST output to a file
++
+--
+.Add to application.properties
+[source,properties]
+----
+# Log all REST output to file using a named (REST_TRACE) file handler
+quarkus.log.handler.file."REST_TRACE".enable=true
+quarkus.log.handler.file."REST_TRACE".path=/tmp/rest.log
+quarkus.log.handler.file."REST_TRACE".level=TRACE
+quarkus.log.category."org.jboss.resteasy".handlers=REST_TRACE
+----
+--
++
+// *********************************************
+'''
+
+. Test the log-to-file change
++
+--
+.Terminal 2
+[source,shell script]
+----
+curl -i http://localhost:8080/logging
+----
+
+.Terminal 2 output
+[source,text]
+----
+...
+
+DEBUG MessageBodyWriter: org.jboss.resteasy.plugins.providers.StringTextStar
+DEBUG MessageBodyWriter: org.jboss.resteasy.plugins.providers.StringTextStar
+
+...
+----
+--
++
+// *********************************************
+'''
+
+. Update application.properties to configure json logging
++
+--
+.Add to application.properties
+[source,properties]
+----
+# JSON configuration settings
+quarkus.log.console.json.pretty-print=true  # <1>
+----
+<1> Format JSON in a human-readable format
+--
++
+// *********************************************
+'''
+
+. Log in JSON output by adding the JSON logging extension
++
+--
+.Terminal 2
+[source,shell script]
+----
+mvn quarkus:add-extension -Dextensions="logging-json" # <1>
+----
+<1> Add the quarkus JSON login extension.
+
+.Terminal 2 output
+[source,text]
+----
+{                                                     <1>
+"timestamp": "2020-10-17T22:00:26.63-07:00",
+"sequence": 3168,
+"loggerClassName": "org.jboss.logging.Logger",
+"loggerName": "org.acme.LoggingResource",
+"level": "INFO",
+"message": "***** JBossLogManagerLogger: INFO *****",
+"threadName": "executor-thread-199",
+"threadId": 290,
+"mdc": {
+},
+"ndc": "",
+"hostName": "jclingan-mac",
+"processName": "greeting-dev.jar",
+"processId": 39901
+}
+
+...
+----
+<1> Because the _Greeting Service_ is in development mode and the extension
+enables JSON logging by default, the Live Coding restart will immediately
+print its log in JSON format.
+--
++
+// *********************************************
+'''
+
+. Disable JSON logging
++
+--
+.Add to application.properties
+[source,properties]
+----
+quarkus.log.console.json=false
+----
+--
++
+// *********************************************
+'''
+
+. Start the syslog server
++
+--
+.Terminal 2
+[source,shell script]
+----
+docker run -d --rm=true -it -p 1514:514/udp \
+    --name syslog-ng balabit/syslog-ng:latest    # <1>
+----
+--
++
+// *********************************************
+'''
+
+. Configure Quarkus to use syslog
++
+--
+.Add to application.properties
+[source,properties]
+----
+# Syslog settings
+
+quarkus.log.syslog.enable=true               # <1>
+quarkus.log.syslog.endpoint=localhost:1514   # <2>
+quarkus.log.syslog.protocol=udp              # <3>
+quarkus.log.syslog.hostname=jclingan-mac     # <4>
+quarkus.log.syslog.app-name=greeting         # <5>
+quarkus.log.syslog.level=ERROR               # <6>
+----
+<1> More than one logging handler can be specified.
+There are now three (console, file, syslog)
+<2> The host:port of the syslog server
+<3> Log using TCP/IP udp protocol
+<4> Name of the log message originating host.
+This will be your hostname
+<5> The name of the application sending the log message
+<6> The sysloglog level
+--
++
+// *********************************************
+'''
+
+. Log a message and check syslog
++
+--
+.Terminal 2
+[source,shell script]
+----
+curl -i http://localhost:8080/logging          # <1>
+docker exec syslog-ng tail /var/log/messages   # <2>
+----
+<1> Generate a log messsage
+<2> Check the log message on the syslog server
+
+.Terminal 2 output
+[source,text]
+----
+...
+
+Oct 18 00:32:16 jclingan-mac greeting[39901]: 2020-10-18 00:32:16,497 FATAL [org.acm.LoggingResource] (executor-thread-199) ***** JBossLogManagerLogger: FATAL *****
+Oct 18 00:32:16 jclingan-mac greeting[39901]: 2020-10-18 00:32:16,498 ERROR [org.acm.LoggingResource] (executor-thread-199) ***** JBossLogManagerLogger: ERROR *****
+
+...
+----
+--
++
+// *********************************************
+'''
+
+. Start the ELK (Elasticsearch/LogStash/Kibana) stack
++
+--
+.Terminal 2
+[source,shell script]
+----
+docker-compose -f docker/elk.yml up         <1>
+----
+
+.Terminal 2 output
+----
+Creating network "docker_elk" with driver "bridge"
+Creating docker_elasticsearch_1 ... done
+Creating docker_logstash_1      ... done
+Creating docker_kibana_1        ... done
+----
+--
++
+// *********************************************
+'''
+
+. Configure GELF (GreyLog Extended Log Format) to use the ELK stack
++
+--
+.Add to application.properties
+[source,properties]
+----
+# GELF settings
+quarkus.log.handler.gelf.enabled=true       # <1>
+quarkus.log.handler.gelf.host=localhost     # <2>
+quarkus.log.handler.gelf.port=12201         # <3>
+----
+<1> Enable centralized logging to LogStash using GELF
+<2> Hostname running LogStash
+<3> LogStash port
+--
++
+// *********************************************
+'''
+
+. Add the GELF extension
++
+--
+.Terminal 3
+[source,properties]
+----
+mvn quarkus:add-extension -Dextensions=logging-gelf
+----
+--
++
+// *********************************************
+'''
+
+. View elasticsearch log output
++
+--
+.Terminal 3
+[source,properties]
+----
+curl -i http://localhost:8080/logging
+----
+
+.Terminal 2 output
+----
+...  <1>
+logstash_1       |     "SourceSimpleClassName" => "AbstractWriterInterceptorContext",
+logstash_1       |          "SourceMethodName" => "asyncProceed",
+logstash_1       |                    "Thread" => "executor-thread-1",
+logstash_1       |                "LoggerName" => "org.jboss.resteasy.resteasy_jaxrs.i18n",
+logstash_1       |                     "level" => 7,
+logstash_1       |                      "Time" => "2020-10-18 01:44:32,992",
+logstash_1       |           "SourceClassName" => "org.jboss.resteasy.core.interception.jaxrs.AbstractWriterInterceptorContext",
+logstash_1       |                      "host" => "jclingan-mac.local",
+logstash_1       |                  "facility" => "jboss-logmanager",
+logstash_1       |                  "Severity" => "DEBUG",
+logstash_1       |                "@timestamp" => 2020-10-18T08:44:32.992Z,
+logstash_1       |                  "@version" => "1",
+logstash_1       |               "source_host" => "172.27.0.1",
+logstash_1       |             "MessageParam0" => "org.jboss.resteasy.core.interception.jaxrs.ServerWriterInterceptorContext",
+logstash_1       |                   "message" => "Interceptor Context: org.jboss.resteasy.core.interception.jaxrs.ServerWriterInterceptorContext,  Method : proceed"
+logstash_1       | }
+...
+----
+<1> It is left up to the student to view data in Kibana
+--
+. Stop logging services and clean up (Optional)
++
+--
+.application.properties
+[source,properties]
+----
+...
+quarkus.log.syslog.enable=false                      // <1>
+...
+quarkus.log.handler.gelf.enabled=false               // <2>
+...
+quarkus.log.handler.file."REST_TRACE".enable=false   // <3>
+
+----
+<1> Disable syslog logging
+<2> Disable GELF logging
+<3> Disable file logging for REST_TRACE named handler
+
+.Terminal 3
+[source,shell script]
+----
+docker-compose -f docker/elk.yml down
+docker stop syslog-ng
+----
+--

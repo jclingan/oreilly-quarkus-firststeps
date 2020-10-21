@@ -1,0 +1,53 @@
+= Quarkus First Steps
+
+
+:toc: left
+
+== Introduction
+
+This hands-on tutorial shows how to quickly become productive with Quarkus
+with features that you'll use on a day to day basis like logging,
+configuration, testing.
+This tutorial will also cover technologies used by most web
+applications like REST, persistence, and security.
+
+This tutorial does assume some degree of experience with either Java EE or
+Spring, but the step-by-step nature of this tutorial does not require it.
+
+The domain model for this tutorial is simply a `Training` service
+that communicates with a Greeting service.
+The goal is to keep the domain model simple to focus on APIs and concepts.
+
+The documented steps in this lab follow a pattern:
+
+. Write code
+. Test the code (curl or `mvn test`)
+. Verify output
+
+This pattern flows quickly due to Quarkus' Live Coding feature and makes
+checking code changes near-instantaneous, so each change is immediately
+evaluated.
+
+== Requirements
+* Java 8 or 11
+* Maven 3.6.2+
+* https://docs.docker.com/compose/install/[Docker/Docker Compose]
+* OPTIONAL: https://curl.haxx.se/download.html[curl].
+The instructions use curl, but tools like
+https://httpie.org/[HTTPie] or even a browser is sufficient
+* OPTIONAL (native compilation):  GraalVM 20.2.0,
+https://quarkus.io/guides/building-native-image#configuring-graalvm[configured appropriately]
+* An IDE.
+** https://plugins.jetbrains.com/plugin/13234-quarkus-tools[IntelliJ Community Edition Plugin]
+(Red Hat)
+** IntelliJ Ultimate
+*** https://plugins.jetbrains.com/plugin/13234-quarkus-tools[Red Hat Plugin]
+*** https://www.jetbrains.com/idea/whatsnew/[Built-in features]
+** https://marketplace.visualstudio.com/items?itemName=redhat.vscode-quarkus[VS Code Plugin]
+** https://marketplace.eclipse.org/content/quarkus-tools[Eclipse Plugin]
+
+
+== Additional Information
+* Source code is available on https://github.com/jclingan/oreilly-quarkus-firststeps[GitHub]
+* Tutorial https://github.com/jclingan/[TBD Instructions]
+* The accompanying slides are available at [red]#Location TBD#

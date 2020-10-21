@@ -1,0 +1,582 @@
+== Quarkus Hibernate ORM with Panache
+
+This section covers Hibernate ORM with Panache, an ease of use
+layer on top of Hibernate (and JPA).
+
+. Add necessary extensions
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn quarkus:add-extension -Dextensions=hibernate-orm-panache,jdbc-h2  # <1>
+----
+<1> Add quarkus-hibernate-orm extension provides the Hibernate ORM
+with Panache functionality.
+However, a JDBC driver is required so that is added too.
+Most of this tutorial will the H2 in-memory database.
+--
++
+// *********************************************
+'''
+
+. Add database configuration properties
++
+--
+.application.properties
+[source,properties]
+----
+# Database Configuration
+
+quarkus.datasource.db-kind=h2                              # <1>
+quarkus.datasource.jdbc.url=jdbc:h2:mem:test               # <2>
+quarkus.hibernate-orm.log.sql=true                         # <3>
+quarkus.hibernate-orm.sql-load-script=import.sql           # <4>
+quarkus.hibernate-orm.database.generation=drop-and-create  # <5>
+----
+<1> Use the H2 database
+<2> Database connection string
+<3> Log SQL to the log
+<4> Load the database with "dummy data".
+`import.sql` is loaded from src/main/resources`
+<5> Drop the database table and re-create it on each deployment.
+When Quarkus is in developer mode, this is done each time a change
+is made and an (REST, messsaging) endpoint is called.
+--
++
+// *********************************************
+'''
+
+. Populate import.sql with "dummy data" to enable basic functionality and testing
++
+--
+.src/main/resources/import.sql
+[source,sql]
+----
+insert into Training(ID, NAME) values (nextval('hibernate_sequence'), 'Quarkus First Steps');
+insert into Training(ID, NAME) values (nextval('hibernate_sequence'), 'Quarkus and MicroProfile');
+insert into Student(ID, training_id, NAME) values (nextval('hibernate_sequence'), 1,  'John Doe');
+insert into Student(ID, training_id, NAME) values (nextval('hibernate_sequence'), 1,  'Jane Doe');
+insert into Student(ID, training_id, NAME) values (nextval('hibernate_sequence'), 2,  'John Duke');
+insert into Student(ID, training_id, NAME) values (nextval('hibernate_sequence'), 2,  'Jane Quarkus');
+----
+--
++
+// *********************************************
+'''
+
+. Create Student Entity
++
+--
+.Student.java
+[source,java]
+----
+@Entity
+public class Student extends PanacheEntity {   // <1>
+    public String name;                        // <2>
+}
+----
+<1> Panache entities extend `PanacheEntity`.
+A `PanacheEntity` provides a unique `id` field`
+<2> Panache entities fields are public.
+If an entity defines an accessor method, then that method will be called.
+--
++
+// *********************************************
+'''
+
+. Create Training entity
++
+--
+.Training.java
+[source,java]
+----
+@Entity
+public class Training extends PanacheEntity {                       // <1>
+    public String name;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "training_id", referencedColumnName = "id")
+    public List<Student> students;
+
+    public Training() {
+        students = new ArrayList<Student>();
+    }
+
+    public Training(String name) {
+        this();
+        this.name = name;
+    }
+}
+----
+<1> This entity owns the one-to-many relationship
+--
++
+// *********************************************
+'''
+
+. Create REST resource to manage the database
++
+--
+.TrainingResource.java
+[source,java]
+----
+@Path("/training")
+public class TrainingResource {              // <1>
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Training> listTrainings() {
+        return Training.listAll();                       // <2>
+    }
+
+    @POST
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Training postTraining(Training training) {
+        training.persist();                              // <3>
+
+        return training;
+    }
+
+}
+----
+<1> This class uses the Panaache "active record" API
+<2> Return all trainings
+<3> Persist the traianing
+--
++
+// *********************************************
+'''
+
+. Get all trainings
++
+--
+.Terminal 3
+[source,shell script]
+----
+curl localhost:8088/training
+----
+
+.Terminal 3 output
+[source,json]
+----
+[{"id":1,"name":"Quarkus First Steps","students":[{"id":3,"name":"John Doe"},{"id":4,"name":"Jane Doe"}]},{"id":2,"name":"Quarkus and MicroProfile","students":[{"id":5,"name":"John Duke"},{"id":6,"name":"Jane Quarkus"}]}]
+----
+--
++
+// *********************************************
+'''
+
+. Add a training
++
+--
+.Terminal 3
+[source,shell script]
+----
+curl -i \
+     -H"Content-Type: application/json" \
+     -X POST \
+     -d '{ "name" : "MicroProfile", "students" : [{"name":"John Config"},{"name":"Jane Health"}]}' \
+     localhost:8088/training
+----
+
+.Terminal 3 output
+[source,json]
+----
+{"id":7,"name":"MicroProfile","students":[{"id":8,"name":"John Config"},{"id":9,"name":"Jane Health"}]} // <1>
+----
+<1> The ID's will increment different each time this is run
+--
++
+// *********************************************
+'''
+
+. List the trainings
++
+--
+.Terminal 3
+[source,shell script]
+----
+curl -is localhost:8088/training
+----
+
+.Terminal 3 output
+[source,json]
+----
+[{"id":1,"name":"Quarkus First Steps","students":[{"id":3,"name":"John Doe"},{"id":4,"name":"Jane Doe"}]},{"id":2,"name":"Quarkus and MicroProfile","students":[{"id":5,"name":"John Duke"},{"id":6,"name":"Jane Quarkus"}]},{"id":7,"name":"MicroProfile","students":[{"id":8,"name":"John Config"},{"id":9,"name":"Jane Health"}]}] // <1>
+----
+<1> The new training has been addeed.
+--
++
+// *********************************************
+'''
+
+. Add a data repository class
++
+--
+.TrainingRepository.java
+[source,java]
+----
+@ApplicationScoped
+public class TrainingRepository implements PanacheRepository<Training> {
+}
+----
+--
++
+// *********************************************
+'''
+
+. Update TrainingResource to use data repository
++
+--
+.Add to TrainingResource.java
+[source,java]
+----
+@Inject
+TrainingRepository repository;                               // <1>
+
+@POST
+@Transactional
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Path("/repository")
+public Training postRepositoryTraining(Training training) {
+    repository.persist(training);                            // <2>
+
+    return training;
+}
+----
+<1> Inject a `TrainingRepository` instance
+<2> Persist the training object using the data repository API
+--
++
+// *********************************************
+'''
+
+. Test postRepositoryTraining
++
+--
+.Terminal 3
+[source,shell script]
+----
+curl -i \
+     -H"Content-Type: application/json" \
+     -X POST \
+     -d '{ "name" : "MicroProfile", "students" : [{"name":"John Config"},{"name":"Jane Health"}]}' \
+     localhost:8088/training/repository
+----
+
+.Terminal 3 output
+[source,json]
+----
+{"id":7,"name":"MicroProfile","students":[{"id":8,"name":"John Fault Tolerance"},{"id":9,"name":"Jane JWT Auth"}]}
+----
+--
++
+// *********************************************
+'''
+
+. Add a custom find method to TrainingRepository
++
+--
+.TrainingRepository.java
+[source,java]
+----
+public Training findByName(String name) {          // <1>
+    return find("name", name).firstResult();       // <2>
+}
+----
+<1> Find Training by name
+<2> Find method can take a shortened Hibernate query string as parameter
+--
++
+// *********************************************
+'''
+
+. Add REST endpoint to access `findByName()`
++
+--
+.TrainingResource.java
+[source,java]
+----
+@GET
+@Produces(MediaType.APPLICATION_JSON)
+@Path("/repository/{name}")
+public Training getRepositoryTraining(@PathParam("name") String name) {
+    return repository.findByName(name);
+}
+----
+--
++
+// *********************************************
+'''
+
+. Get Training by name
++
+--
+.Terminal 3
+[source,shell script]
+----
+curl -is localhost:8088/training/repository/MicroProfile
+----
+
+.Terminal 3 output
+[source,json]
+----
+{"id":7,"name":"MicroProfile","students":[{"id":8,"name":"John Fault Tolerance"},{"id":9,"name":"Jane JWT Auth"}]}
+----
+--
++
+// *********************************************
+'''
+
+. Test Panache active record pattern.
+Add quarkus-panache-mock maven dependency.
+This dependency is not an extension, so it must be added directly to
+pom.xml.
+Normally Mockito does not allow testing static methods, but the
+quarkus-panache-mock libary uses Mockito to mock static methods.
++
+--
+.Add to pom.xml
+[source,xml]
+----
+<dependency>
+    <groupId>io.quarkus</groupId>
+    <artifactId>quarkus-panache-mock</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+--
++
+// *********************************************
+'''
+
+. Test the active record style
++
+--
+.TrainingTest.java
+[source,java]
+----
+@QuarkusTest
+public class TrainingTest {
+    @Test
+    public void testActiveRecord() {
+        PanacheMock.mock(Training.class);                             // <1>
+
+        // Mock a training
+        Training training = new Training();
+        Mockito.when(Training.findById(10L)).thenReturn(training);
+        Mockito.when(Training.count()).thenReturn(1L);
+        Mockito.when(Training.listAll())
+              .thenReturn(Arrays.asList(training));
+
+        // Make assertions
+        Assertions.assertSame(training, Training.findById(10L));
+        Assertions.assertSame(Training.listAll().size(), 1);
+        Assertions.assertSame(Training.count(), 1L);
+
+        PanacheMock.verify(Training.class).count();                   // <2>
+        PanacheMock.verify(Training.class).listAll();
+        PanacheMock.verify(Training.class,
+            Mockito.atLeastOnce()).findById(Mockito.any());
+    }
+}
+----
+<1> To mock a Panache active record entity, use `PanacheMock.mock()` instead
+of `Mockito.mock()`
+<2> `Mockito.verify()` and `Mockito.do*()` must be replaced with
+ `PanacheMock.verify()` and `PanacheMock.do*()`, where _*_ is the full method
+name
+--
++
+// *********************************************
+'''
+
+. Test Panache active record entity
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn test
+----
+
+.Terminal 3 output
+[source,text]
+----
+...
+
+[INFO]
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] BUILD SUCCESS
+
+...
+----
+--
++
+// *********************************************
+'''
+
+. Update test to verify Panache Entity encapsulation
++
+--
+.Add lines TrainingTest.java
+[source,java]
+----
+    @Test
+    public void testActiveRecord() {
+        PanacheMock.mock(Training.class);
+
+        // Mock a training
+        Training training = new Training();
+        training.name ="Quarkus Deep Dive";                             // <1>
+        Mockito.when(Training.findById(10L)).thenReturn(training);
+        Mockito.when(Training.count()).thenReturn(1L);
+        Mockito.when(Training.listAll())
+            .thenReturn(Arrays.asList(training));
+
+        // Make assertions
+        Assertions.assertSame(training, Training.findById(10L));
+        Assertions.assertSame(Training.listAll().size(), 1);
+        Assertions.assertSame(Training.count(), 1L);
+        Assertions.assertTrue("Quarkus Deep Dive!".equals(training.name)); // <2>
+
+        PanacheMock.verify(Training.class).count();
+        PanacheMock.verify(Training.class).listAll();
+        PanacheMock.verify(Training.class,
+             Mockito.atLeastOnce()).findById(Mockito.any());
+    }
+----
+<1> Set the training name, which is a public field
+<2> Assert that the training name now has an appended exclamation point.
+
+NOTE: Quarkus will call accessor methods on public fields if they exist,
+even when the field is directly accessed.
+Behind the scenes, Quarkus (Hibernatee ORM with Panache framework
+specifically) will create any missing accessor methods and rewrite direct
+field access to invoke them.
+--
++
+// *********************************************
+'''
+
+. Update Training class with a getname() accessor method that appends
+an exclamation point
++
+--
+.Add to Training.java
+[source,java]
+----
+public String getName() {         // <1>
+    return name + "!";
+}
+----
+<1> When the training.name is referenced directly, the getName()
+method is called instead.
+--
++
+// *********************************************
+'''
+
+. Test Panache entity accessor method
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn test
+----
+
+.Terminal 3 output
+[source,text]
+----
+...
+
+[INFO]
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] BUILD SUCCESS
+
+...
+----
+--
++
+// *********************************************
+'''
+
+. Test data repository method.
+Added a validation of the custom `findByName()` method
+that exists in the data repository method.
+The same method could also be used in the active record
+method.
++
+--
+.Add testDataRepository() to TrainingTest.java
+[source,java]
+----
+@InjectMock                                                             // <1>
+TrainingRepository repository;
+
+@Test
+public void testDataRepository() {
+    // Mock a training
+    Training training = new Training();
+    training.name = training.name = "Quarkus Deep Dive";
+
+    Mockito.when(repository.findById(10L)) .thenReturn(training);
+    Mockito.when(repository.count()) .thenReturn(1L);
+    Mockito.when(repository.listAll())
+            .thenReturn(Arrays.asList(training));
+    Mockito.when(repository
+            .findByName("Quarkus Deep Dive"))                           // <2>
+            .thenReturn(training);
+
+    // Make assertions
+    Assertions.assertSame(training, repository.findById(10L));
+    Assertions.assertSame(repository.count(), 1L);
+    Assertions.assertSame(repository.listAll().get(0), training);
+    Assertions.assertSame(repository.findByName("Quarkus Deep Dive"),   // <3>
+            training);
+    Assertions.assertTrue("Quarkus Deep Dive!".equals(training.name));
+
+    Mockito.verify(repository).count();                                 // <4>
+    Mockito.verify(repository).listAll();
+    Mockito.verify(repository).findById(Mockito.any());
+    Mockito.verify(repository).findByName(Mockito.any());
+}
+----
+<1> @InjectMock allows mocked beans to be local to this class instead of
+for all classes like @Mock (CDI alternative)
+<2> Mock custom method
+<3> Assertion on custom method
+<4> Can call `Mockito.verify()` directly using data repository method
+--
++
+// *********************************************
+'''
+
+. Test the data repository
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn test
+----
+
+.Terminal 3 output
+[source,text]
+----
+...
+
+[INFO]
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] BUILD SUCCESS
+
+...
+----
+--
