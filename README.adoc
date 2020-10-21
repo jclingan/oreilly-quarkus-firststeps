@@ -49,5 +49,6 @@ https://quarkus.io/guides/building-native-image#configuring-graalvm[configured a
 
 == Additional Information
 * Source code is available on https://github.com/jclingan/oreilly-quarkus-firststeps[GitHub]
-* Tutorial https://github.com/jclingan/[TBD Instructions]
-* The accompanying slides are available at [red]#Location TBD#
+* Tutorial https://github.com/jclingan/oreilly-quarkus-firststeps/releases[Instructions]
+* The accompanying slides are available
+https://docs.google.com/presentation/d/148aC-beH0wISu2bxqyRYMZj-NLZFJo5ykQ3CC980VwY/edit[here]
