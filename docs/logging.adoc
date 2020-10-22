@@ -13,6 +13,9 @@ application.properties.
 # Simplify console output
 
 quarkus.log.console.format=%-5p [%c{3.}] %s%e%n   # <1>
+
+# Default formatting
+# %d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c{3.}] (%t) %s%e%n
 ----
 <1> Display Priority (`%-5p`), category (`[%c{3.}]`),
 and simple message/exception/newline (`%s%e%n`).
