@@ -1,10 +1,12 @@
 == Quarkus Logging
 
 This section covers Quarkus logging.
-The logging implementation is JBoss Logging, which is configured using
-application.properties.
+The logging implementation is JBoss Logging, and is configured using
+`application.properties`.
 
-. Simplify the logging output to better demonstrate logging
+. Simplify the logging output to better demonstrate logging.
+Log formatting symbols are
+https://quarkus.io/guides/logging#logging-format[described here].
 +
 --
 .Add to application.properties
@@ -25,7 +27,7 @@ See https://quarkus.io/guides/logging#logging-format[Logging Format].
 // *********************************************
 '''
 
-. Create a logging class with a loggingLevels method and REST endpoint to
+. Create a logging class with a `loggingLevels()` method and REST endpoint to
 print out logging levels
 +
 --
@@ -57,14 +59,14 @@ public class LoggingResource {
 }
 ----
 <1> Get a logger
-<2> Create rest point to print out levels
-<3> Print output at logging levels
+<2> Create REST endpoint to print out levels
+<3> Print output at each  logging levels
 --
 
 +
 // *********************************************
 '''
-. Change logging level in application.properties
+. Change logging level in `application.properties`
 +
 --
 .application.properties
@@ -84,10 +86,11 @@ quarkus.log.level=TRACE   # <1>
 .Terminal 2
 [source,shell script]
 ----
- curl -i http://localhost:8080/logging
+curl -i http://localhost:8080/logging
 ----
 
-.Terminal 2 Output
+.Terminal 2 output
+[source,text]
 ----
 ...
 
@@ -121,24 +124,23 @@ DEBUG [org.jbo.res.res.i18n] MessageBodyWriter: org.jboss.resteasy.plugins.provi
 --
 [source,properties]
 ----
-quarkus.log.console.level=INFO        # <1>
+quarkus.log.console.level=INFO
 ----
-<1> Limit console output to INFO (Default setting)
 --
 +
 // *********************************************
 '''
 
-. Test TRACE log level
+. Test INFO log level
 +
 --
 .Terminal 2
 [source,shell script]
 ----
- curl -i http://localhost:8080/logging
+curl -i http://localhost:8080/logging
 ----
 
-.Terminal 2 Output
+.Terminal 2 output
 ----
 ----------------------------------------
 FATAL [org.acm.GreetingResource] ***** JBossLogManagerLogger: FATAL *****
@@ -151,7 +153,7 @@ INFO  [org.acm.GreetingResource] ***** JBossLogManagerLogger: INFO *****
 // *********************************************
 '''
 
-. Log all REST output to a file
+. Log all REST log records to a file
 +
 --
 .Add to application.properties
@@ -168,7 +170,7 @@ quarkus.log.category."org.jboss.resteasy".handlers=REST_TRACE
 // *********************************************
 '''
 
-. Test the log-to-file change
+. Force logging to file
 +
 --
 .Terminal 2
@@ -177,7 +179,7 @@ quarkus.log.category."org.jboss.resteasy".handlers=REST_TRACE
 curl -i http://localhost:8080/logging
 ----
 
-.Terminal 2 output
+./tmp/rest.log
 [source,text]
 ----
 ...
@@ -215,7 +217,7 @@ quarkus.log.console.json.pretty-print=true  # <1>
 ----
 mvn quarkus:add-extension -Dextensions="logging-json" # <1>
 ----
-<1> Add the quarkus JSON login extension.
+<1> Add the quarkus JSON logging extension.
 
 .Terminal 2 output
 [source,text]
@@ -241,7 +243,7 @@ mvn quarkus:add-extension -Dextensions="logging-json" # <1>
 ----
 <1> Because the _Greeting Service_ is in development mode and the extension
 enables JSON logging by default, the Live Coding restart will immediately
-print its log in JSON format.
+log in JSON format.
 --
 +
 // *********************************************
@@ -296,7 +298,7 @@ There are now three (console, file, syslog)
 <4> Name of the log message originating host.
 This will be your hostname
 <5> The name of the application sending the log message
-<6> The sysloglog level
+<6> The syslog log level
 --
 +
 // *********************************************
@@ -329,7 +331,7 @@ Oct 18 00:32:16 jclingan-mac greeting[39901]: 2020-10-18 00:32:16,498 ERROR [org
 // *********************************************
 '''
 
-. Start the ELK (Elasticsearch/LogStash/Kibana) stack
+. Start the ELK (Elasticsearch/Logstash/Kibana) stack
 +
 --
 .Terminal 2
@@ -361,9 +363,9 @@ quarkus.log.handler.gelf.enabled=true       # <1>
 quarkus.log.handler.gelf.host=localhost     # <2>
 quarkus.log.handler.gelf.port=12201         # <3>
 ----
-<1> Enable centralized logging to LogStash using GELF
-<2> Hostname running LogStash
-<3> LogStash port
+<1> Enable centralized logging to Logstash using GELF
+<2> Hostname running Logstash
+<3> Logstash port
 --
 +
 // *********************************************
@@ -382,7 +384,7 @@ mvn quarkus:add-extension -Dextensions=logging-gelf
 // *********************************************
 '''
 
-. View elasticsearch log output
+. View Logstash log output
 +
 --
 .Terminal 3

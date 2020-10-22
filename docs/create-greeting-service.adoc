@@ -93,14 +93,14 @@ $ mvn compile quarkus:dev
 // *********************************************
 '''
 
-. Check that the endpoint returns "hello"
+. Check that the endpoint returns _hello_
 
 +
 --
 .Terminal 2
 [source,bash]
 ----
-$ curl -i localhost:8080/greeting
+curl -i localhost:8080/greeting
 ----
 .Terminal 2 Output
 ....
@@ -116,7 +116,7 @@ hello
 '''
 
 . Try out live reload.
-In the GreetingResource.java hello() method, replace "Hello" with "Howdy"
+In the hello() method, replace _hello_ with _Howdy_
 and save the file
 +
 .GreetingResource.java
@@ -131,25 +131,30 @@ public class GreetingResource {
     }
 }
 ----
-<1> Replace "Hello" with "Howdy"
+<1> Replace _Hello_ with _howdy_
 
 +
 
 .Terminal 2
 [source,bash]
 ----
-$ curl -i localhost:8080/greeting
+curl -i localhost:8080/greeting
 ----
 +
 .Terminal 2 Output
-....
+----
 HTTP/1.1 200 OK
 Content-Length: 5
 Content-Type: text/plain;charset=UTF-8
 
 Howdy
-....
+----
 
++
+// *********************************************
+'''
+
+. Change _Howdy_  back to _hello_
 +
 // *********************************************
 '''
@@ -194,7 +199,7 @@ public List<String> listGreetings() {
 --
 [source,bash]
 ----
-$ curl -i localhost:8080/greeting/list
+curl -i localhost:8080/greeting/list
 ----
 --
 

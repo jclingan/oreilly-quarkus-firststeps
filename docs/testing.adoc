@@ -1,6 +1,6 @@
 == Quarkus Testing
 
-This section covers testing applications with Quarkus.
+This section covers testing Quarkus applications.
 
 . Review generated `FirstStepsResourceTest` class
 +
@@ -25,7 +25,7 @@ public class FirstStepsResourceTest {
 <1> `@QuarkusTest` bootstraps Quarkus on port 8081
 <2> JUnit test
 <3> RestAssured static method.
-Given defines REST call parameters.
+`given` defines REST call parameters.
 There are none in this particular test
 <4> Invokes http endpoint
 <5> Begin to validate / assert response
@@ -92,11 +92,6 @@ public String getRandom() {
 // *********************************************
 '''
 
-. Create test to test the Rest Client call
-+
-// *********************************************
-'''
-
 . Run the test
 +
 --
@@ -134,8 +129,9 @@ public void testRestClient() {
 }
 ----
 <1> Provide a JSON path expresion to match/validate.
-This expression gets first, second, and third entry (index starts at zero).
+These expressions gets first, second, and third entry (index starts at zero).
 Because the matcher is `is()`,
+the results have to match exactly
 --
 +
 // *********************************************
@@ -155,7 +151,7 @@ public class FirstStepsResourceTest {
 
 ...
 ----
-<1> Use the top-level path defined in the  JAX-RS Resource class ("/firststeps")
+<1> Use the top-level path defined in the JAX-RS Resource class ("/firststeps")
 --
 +
 // *********************************************
@@ -291,7 +287,7 @@ mvn test
 .Terminal 3 output
 [source,text]
 ----
-...      # Lots of Java exceptions because Greeetings Service is down
+...      # Lots of Java exceptions because Greetings Service is down
 
 [INFO]
 [ERROR] Tests run: 3, Failures: 2, Errors: 0, Skipped: 0   <1>
@@ -318,7 +314,7 @@ can be mocked using CDI alternatives.
 .CDIMockGreetingSerevice.java
 [source,java]
 ----
-//@Mock
+@Mock
 @ApplicationScoped
 public class CDIMockGreetingService extends FirstStepsResource {
     @Override
@@ -474,7 +470,7 @@ with@QuarkusTestResource(WiremockGreetingService.class) to start resources
 before Quarkus boots the application
 +
 --
-.
+.FirstStepsResourceTest.java
 [source,java]
 ----
 @QuarkusTest
@@ -488,7 +484,7 @@ public class FirstStepsResourceTest {
 // *********************************************
 '''
 
-. Test the wiremock service
+. Test WiremockGreetingService
 +
 --
 .Terminal 3
@@ -511,4 +507,9 @@ mvn test
 
 ...
 ----
+
+NOTE: TestContainers can be used with Quarkus.
+See
+https://github.com/quarkusio/quarkus-quickstarts/blob/master/kafka-quickstart/src/test/java/org/acme/kafka/KafkaResource.java[example code] here.
+and the https://github.com/quarkusio/quarkus-quickstarts/blob/65b8a803fbfcaaef83759ddc1e6b69af65a8a83c/kafka-quickstart/src/test/java/org/acme/kafka/PriceResourceTest.java#L20[TestResource here].
 --

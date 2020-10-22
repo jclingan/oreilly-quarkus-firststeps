@@ -195,7 +195,7 @@ target/firststeps-1.0-SNAPSHOT-runner \
 
 ...
 
-2020-10-20 20:55:40,692 INFO  [io.quarkus] (main) firststeps 1.0-SNAPSHOT native (powered by Quarkus 1.9.0.CR1) started in 0.114s. Listening on: http://0.0.0.0:8081
+2020-10-20 20:55:40,692 INFO  [io.quarkus] (main) firststeps 1.0-SNAPSHOT native (powered by Quarkus 1.9.0.Final) started in 0.114s. Listening on: http://0.0.0.0:8081
 
 ...
 

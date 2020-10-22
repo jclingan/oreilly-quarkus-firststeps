@@ -1,13 +1,15 @@
-== Quarkus Configuration
+== Quarkus Configuratioe
 
-This section covers the externalizing configuration using MicroProfile.
+This section covers externalizing configuration using MicroProfile.
 In these instructions, configuration parameters are stored in
 `application.properties` instead of `microprofile-config.properties`.
 
-NOTE: While Quarkus supports MicroProfile APIs, it also supports much more than MicroProfile like Spring and Vert.x APIs.
-For that reason, https://quarkus.io/guides/[the Quarkus guides] refer to the more framework-agnostic `src/main/resources/application.properties`.
+NOTE: While Quarkus supports MicroProfile APIs, it also supports much more
+than MicroProfile like Spring APIs and Vert.x APIs.
+For that reason, https://quarkus.io/guides/[the Quarkus guides] refer to the
+more framework-agnostic `src/main/resources/application.properties`.
 
-Let's change the hard coded value to return a random value.
+Change the hard coded value to return a random value.
 
 . Create greetings property in `application.properties`
 +
@@ -24,7 +26,7 @@ greetings=Howdy from app.prop,Hola from app.prop,Hello from app.prop
 . Use MicroProfile Config to inject greetings
 +
 --
-.GreetingsResource.java
+.GreetingResource.java
 [source,java]
 ----
     @ConfigProperty(name="greetings")             // <1>
@@ -42,7 +44,7 @@ greetings=Howdy from app.prop,Hola from app.prop,Hello from app.prop
 .Terminal 2
 [source,shell script]
 ----
- curl -i http://localhost:8080/greeting/list
+curl -i http://localhost:8080/greeting/list
 ----
 
 .Terminal 2 Output
@@ -61,7 +63,7 @@ Content-Type: application/json
 . Next, let's get a random greeting from the list.
 The primary intent is to create a second method that will be used in future sections.
 +
-.GreetingsResource.java
+.GreetingResource.java
 +
 --
 [source,java]
@@ -80,16 +82,17 @@ public String randomGreeting() {
 // *********************************************
 '''
 
-. Test the `/list/random` endpoint Run multiple times to see random output.
+. Test the `/list/random` endpoint.
+Run multiple times to see random output.
 +
 --
 .Terminal 2
 [source,shell script]
 ----
- curl -i http://localhost:8080/greeting/list/random
+curl -i http://localhost:8080/greeting/list/random
 ----
 
-.Terminal 2 Example Output
+.Terminal 2 Output
 ----
 HTTP/1.1 200 OK
 Content-Length: 19
@@ -126,7 +129,7 @@ image::images/configuration-empty-greeting.png[Deployment Exception]
 
 . Override the greetings value in the property file with a
 `GREETINGS` environment variable.
-Press CTRL-C, set the greetings environment variable, and restart the application.
+Press CTRL-C, set the `GREETINGS` environment variable, and restart the application.
 +
 --
 .Terminal 1
@@ -136,7 +139,7 @@ export GREETINGS="Howdy from env,Hola from env,Hello from env" # <2>
 mvn quarkus:dev # <3>
 ----
 <1> Stop the application run with `mvn quarkus:dev`
-<2> Override the `greeting` property
+<2> Override the `greeting` property with an environment variable
 <3> Restart the application in developer mode
 
 [source,shell script]
@@ -160,7 +163,7 @@ Content-Type: application/json
 '''
 
 
-. Override the environment `GREETINGS` value in the property file with a system property
+. Override the `GREETINGS` environment value in the property file with a system property
 +
 --
 .Terminal 1
@@ -235,17 +238,23 @@ public class UnusedConfigProperties {
 }
 
 ----
-<1> `@ConfigurationProperties` object will auto-configure properties (fields)
-in this object.
+<1> `@ConfigurationProperties` object will auto-inject property values
+in fields.
 The `prefix` specifies that the properties are prefixed with `unused.`.
 <2> Field injection is supported.
 The property names will be `unused.number` and `unused.string`.
-If no property value is defined, a DeploymentException will be thrown.
-These two fields avoid a DeploymentException when no property value is defined by providing a default field values.
+If no property value is defined, and no default value is supplieed, a
+DeploymentException will be thrown.
+These two fields avoid a DeploymentException when no property value is defined
+by providing a default field values.
 <3> Optional fields are supported.
 --
 +
-NOTE: https://download.eclipse.org/microprofile/microprofile-config-2.0-RC1/microprofile-config-spec.html[MicroProfile Config 2.0], planning a release in Q4 2020 as a part of MicroProfile 4.0, will formally define `@ConfigurationProperties` where class member fields can be be annotated with `@ConfigProperty`.
+NOTE: https://download.eclipse.org/microprofile/microprofile-config-2.0-RC1/microprofile-config-spec.html[MicroProfile Config 2.0],
+planning a release in Q4 2020 as a part of MicroProfile 4.0,
+link:https://download.eclipse.org/microprofile/microprofile-config-2.0-RC1/microprofile-config-spec.html#_aggregate_related_properties_into_a_cdi_bean[will formally define ConfigProperties]
+where class member fields can be be annotated
+with `@ConfigProperty`.
 Quarkus plans to support _MicroProfile 4.0_ and _MicroProfile Config 2.0_.
 +
 // *********************************************
@@ -255,7 +264,7 @@ Quarkus plans to support _MicroProfile 4.0_ and _MicroProfile Config 2.0_.
 . Update GreetingResource.java with an endpont to return the values of UnusedConfigProperties.
 +
 --
-.GreetingsResource.java
+.GreetingResource.java
 [source,java]
 ----
 UnusedConfigProperties unused;
@@ -285,7 +294,7 @@ Field injection using `@Inject` is also supported.
 
 +
 --
-.application.propertiese
+.application.properties
 [source,properties]
 ----
 # Demonstrate @ConfigurationProperties feature, but are not used in application
@@ -300,13 +309,13 @@ unused.string=Unused string
 '''
 
 
-. Test `UnusedPropertiees` using the REST endpoint
+. Test `UnusedProperties` using the REST endpoint
 +
 --
 .Terminal 2
 [source,shell script]
 ----
- curl -i http://localhost:8080/greeting/unused
+curl -i http://localhost:8080/greeting/unused
 ----
 
 .Terminal 2 output
@@ -330,7 +339,7 @@ Content-Type: application/json
 .Terminal 2
 [source,bash]
 ----
- curl -i http://localhost:8080/greeting/unused
+curl -i http://localhost:8080/greeting/unused
 ----
 
 .Terminal 2 output

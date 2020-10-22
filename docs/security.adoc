@@ -1,7 +1,7 @@
 == Quarkus Security
 
 This section covers HTTP Basic authentication with authentication using
-property files, OpenID Connect, and Bearer tokens
+property files, OpenID Connect, and access tokens
 
 . Add necessary extensions
 +
@@ -201,7 +201,7 @@ mvn test
 // *********************************************
 '''
 
-. Install Keycloak for authentication and autorization
+. Install Keycloak for authentication and authorization
 +
 --
 .Terminal 3

@@ -239,7 +239,7 @@ public interface GreetingsRestClient {
 '''
 
 . Update FirstStepsMain to invoke _Greeting Service_.
-A QuarkusApplication is a CDI bean so it can inject
+A `QuarkusMain` is an `ApplicationScoped` bean so it can inject
 and invoke other CDI beans.
 +
 --
@@ -283,12 +283,8 @@ public int run(String... args) throws Exception {
 +
 // *********************************************
 '''
-+
-// *********************************************
-'''
 
-. To run with a `main()` as a server application, wait for application to exit
-by calling `Quarkus.waitForExit()`.
+. Wait for application to exit.
 +
 --
 .FirstStepsMain.java

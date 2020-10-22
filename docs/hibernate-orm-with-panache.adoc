@@ -3,6 +3,9 @@
 This section covers Hibernate ORM with Panache, an ease of use
 layer on top of Hibernate (and JPA).
 
+NOTE: This tutorial uses a single persistent unit, but beginning with Quarkus 1.8
+https://quarkus.io/guides/hibernate-orm#multiple-persistence-units[multiple persistence units are supported]
+
 . Add necessary extensions
 +
 --
@@ -14,7 +17,9 @@ mvn quarkus:add-extension -Dextensions=hibernate-orm-panache,jdbc-h2  # <1>
 <1> Add quarkus-hibernate-orm extension provides the Hibernate ORM
 with Panache functionality.
 However, a JDBC driver is required so that is added too.
-Most of this tutorial will the H2 in-memory database.
+This section uses the H2 in-memory database.
+When packaged as a binary in the _Packaging_ section, the PostgreSQL
+database is used.
 --
 +
 // *********************************************
@@ -163,6 +168,10 @@ curl localhost:8088/training
 ----
 [{"id":1,"name":"Quarkus First Steps","students":[{"id":3,"name":"John Doe"},{"id":4,"name":"Jane Doe"}]},{"id":2,"name":"Quarkus and MicroProfile","students":[{"id":5,"name":"John Duke"},{"id":6,"name":"Jane Quarkus"}]}]
 ----
+
+NOTE: Quarkus contains
+https://quarkus.io/guides/hibernate-orm-panache#advanced-query[helpful query features]
+like automatic paging and sorting, and simplified queries.
 --
 +
 // *********************************************
@@ -353,6 +362,10 @@ curl -is localhost:8088/training/repository/MicroProfile
 ----
 {"id":7,"name":"MicroProfile","students":[{"id":8,"name":"John Fault Tolerance"},{"id":9,"name":"Jane JWT Auth"}]}
 ----
+
+NOTE: Quarkus also supports https://quarkus.io/guides/rest-data-panache[Rest Data Panache],
+which is similar to Spring Data Rest.
+This will auto-generate CRUD endpoints on top of a PanacheRepository.
 --
 +
 // *********************************************
