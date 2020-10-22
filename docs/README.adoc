@@ -1,6 +1,5 @@
 = Quarkus First Steps
-
-:toc:
+:toc: left
 
 include::introduction.adoc[]
 

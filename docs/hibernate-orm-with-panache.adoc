@@ -312,6 +312,33 @@ public Training getRepositoryTraining(@PathParam("name") String name) {
 // *********************************************
 '''
 
+. Re-add the MicroProfile training class.
+Quarkus will re-start the application after each change,
+and will import the data from import.sql each time.
+For that reason, the MicroProfile training is gone and
+we have to re-add it.
++
+--
+.Terminal 3
+[source,shell script]
+----
+curl -i \
+     -H"Content-Type: application/json" \
+     -X POST \
+     -d '{ "name" : "MicroProfile", "students" : [{"name":"John Config"},{"name":"Jane Health"}]}' \
+     localhost:8088/training/repository
+----
+
+.Terminal 3 output
+[source,json]
+----
+{"id":7,"name":"MicroProfile","students":[{"id":8,"name":"John Fault Tolerance"},{"id":9,"name":"Jane JWT Auth"}]}
+----
+--
++
+// *********************************************
+'''
+
 . Get Training by name
 +
 --

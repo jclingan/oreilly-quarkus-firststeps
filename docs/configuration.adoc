@@ -66,13 +66,13 @@ The primary intent is to create a second method that will be used in future sect
 --
 [source,java]
 ----
-    @GET
-    @Path("/list/random")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String randomGreeting() {
-        Random r = new Random();
-        return greetings.get(r.nextInt(listGreetings().size())); // <1>
-    }
+@GET
+@Path("/list/random")
+@Produces(MediaType.TEXT_PLAIN)
+public String randomGreeting() {
+    Random r = new Random();
+    return greetings.get(r.nextInt(listGreetings().size())); // <1>
+}
 ----
 <1> Return a random greeting
 --
@@ -255,7 +255,7 @@ Quarkus plans to support _MicroProfile 4.0_ and _MicroProfile Config 2.0_.
 . Update GreetingResource.java with an endpont to return the values of UnusedConfigProperties.
 +
 --
-.Greetings.java
+.GreetingsResource.java
 [source,java]
 ----
 UnusedConfigProperties unused;

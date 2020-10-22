@@ -9,7 +9,7 @@ property files, OpenID Connect, and Bearer tokens
 .Terminal 3
 [source,shell script]
 ----
- mvn quarkus:add-extension -Dextensions=security-properties-file  # <1>
+mvn quarkus:add-extension -Dextensions=security-properties-file  # <1>
 ----
 <1> The extension is really quarkus-elytron-security-properties-file,
 but add-extension will attempt to add an extension based on a unique string
@@ -144,7 +144,7 @@ Content-Length: 0
 . Create a test that provides credentials when running test on protected resource
 +
 --
-.Create file TestSecurity.java
+.Create file SecurityTest.java
 [source,java]
 ----
 @QuarkusTest

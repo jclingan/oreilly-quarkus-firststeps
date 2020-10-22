@@ -246,18 +246,18 @@ and invoke other CDI beans.
 .FirstStepsMain.java
 [source,java]
 ----
-    @Inject
-    @RestClient                                             // <1>
-    GreetingsRestClient client;
+@Inject
+@RestClient                                             // <1>
+GreetingsRestClient client;
 
-    @Override
-    public int run(String... args) throws Exception {
-        System.out.println("******* " + args[0]
-                           + " " + args[1]
-                           + " ********");
-        System.out.println(client.listGreetings());         // <2>
-        return 0;
-    }
+@Override
+public int run(String... args) throws Exception {
+    System.out.println("******* " + args[0]
+                       + " " + args[1]
+                       + " ********");
+    System.out.println(client.listGreetings());         // <2>
+    return 0;
+}
 ----
 <1> Inject the `GreetingsRestClient`
 <2> Print the greetings list
