@@ -1,6 +1,7 @@
 package org.acme;
 
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.*;
@@ -24,6 +25,7 @@ public class TrainingResource {              // (1)
     }
 
     @GET
+    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Training> listTrainings() {
         return Training.listAll();                       // (2)
