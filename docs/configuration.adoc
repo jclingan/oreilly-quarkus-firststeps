@@ -1,4 +1,4 @@
-== Quarkus Configuratioe
+== Quarkus Configuration
 
 This section covers externalizing configuration using MicroProfile.
 In these instructions, configuration parameters are stored in
