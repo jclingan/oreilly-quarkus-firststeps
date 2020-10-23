@@ -29,8 +29,8 @@ greetings=Howdy from app.prop,Hola from app.prop,Hello from app.prop
 .GreetingResource.java
 [source,java]
 ----
-    @ConfigProperty(name="greetings")             // <1>
-    List<String> greetings = new ArrayList<>();
+@ConfigProperty(name="greetings")             // <1>
+List<String> greetings = new ArrayList<>();
 ----
 <1> Inject the list of greetings from application.proprties into the greetings list
 --
