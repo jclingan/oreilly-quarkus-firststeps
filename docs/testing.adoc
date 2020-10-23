@@ -92,25 +92,6 @@ public String getRandom() {
 // *********************************************
 '''
 
-. Run the test
-+
---
-.Terminal 3
-[source,shell script]
-----
-mvn test
-----
-
-.Terminal 3 output
-[source,text]
-----
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
-----
---
-+
-// *********************************************
-'''
-
 . Update `FirstStepsResourceTest` to test JSON response
 +
 --
@@ -132,6 +113,25 @@ public void testRestClient() {
 These expressions gets first, second, and third entry (index starts at zero).
 Because the matcher is `is()`,
 the results have to match exactly
+--
++
+// *********************************************
+'''
+
+. Run the test
++
+--
+.Terminal 3
+[source,shell script]
+----
+mvn test
+----
+
+.Terminal 3 output
+[source,text]
+----
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+----
 --
 +
 // *********************************************
