@@ -13,7 +13,7 @@ projects can also be generated at http://code.quarkus.io[code.quarkus.io] using 
 ----
 cd firststeps/working
 
-mvn io.quarkus:quarkus-maven-plugin:1.9.0.Final:create \
+mvn io.quarkus:quarkus-maven-plugin:1.10.2.Final:create \
     -DprojectGroupId=org.acme \
     -DprojectArtifactId=greeting \
     -DclassName="org.acme.GreetingResource" \
@@ -61,7 +61,7 @@ public class GreetingResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String hello() {
-        return "hello";
+        return "Hello RESTEasy";
     }
 }
 ----
@@ -93,7 +93,7 @@ $ mvn compile quarkus:dev
 // *********************************************
 '''
 
-. Check that the endpoint returns _hello_
+. Check that the endpoint returns _Hello RESTEasy_
 
 +
 --
@@ -108,7 +108,7 @@ HTTP/1.1 200 OK
 Content-Length: 5
 Content-Type: text/plain;charset=UTF-8
 
-hello
+Hello RESTEasy
 ....
 --
 +
@@ -116,7 +116,7 @@ hello
 '''
 
 . Try out live reload.
-In the hello() method, replace _hello_ with _Howdy_
+In the hello() method, replace _Hello_ with _Howdy_
 and save the file
 +
 .GreetingResource.java
@@ -127,11 +127,11 @@ public class GreetingResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String hello() {
-        return "Howdy"; // <1>
+        return "Howdy RESTEasy"; // <1>
     }
 }
 ----
-<1> Replace _Hello_ with _howdy_
+<1> Replace _Hello_ with _Howdy_
 
 +
 
@@ -147,14 +147,14 @@ HTTP/1.1 200 OK
 Content-Length: 5
 Content-Type: text/plain;charset=UTF-8
 
-Howdy
+Howdy RESTEasy
 ----
 
 +
 // *********************************************
 '''
 
-. Change _Howdy_  back to _hello_
+. Change _Howdy_  back to _Hello_
 +
 // *********************************************
 '''

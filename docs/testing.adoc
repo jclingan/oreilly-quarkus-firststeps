@@ -17,7 +17,7 @@ public class FirstStepsResourceTest {
           .when().get("/firststeps")        // <4>
           .then()                           // <5>
              .statusCode(200)               // <6>
-             .body(is("hello"));            // <7>
+             .body(is("Hello RESTEasy"));   // <7>
     }
 
 }
@@ -30,7 +30,7 @@ There are none in this particular test
 <4> Invokes http endpoint
 <5> Begin to validate / assert response
 <6> Validate the response code of _200_
-<7> Validate the response is _hello_
+<7> Validate the response is _Hello RESTEasy_
 --
 +
 // *********************************************
@@ -418,7 +418,7 @@ public class WiremockGreetingService
     wireMockServer.stubFor(get(urlEqualTo("/greeting"))                // <4>
         .willReturn(aResponse()
             .withHeader("Content-Type", "text/plain")                  // <5>
-            .withBody("hello")));                                      // <6>
+            .withBody("Hello RESTEasy")));                             // <6>
 
     wireMockServer.stubFor(get(urlEqualTo("/greeting/list"))           // <7>
         .willReturn(aResponse()
@@ -452,7 +452,7 @@ When Quarkus starts/stops, the wiremock server will start/stop first
 <3> Start the wiremock server when Quarkus lifcycle manager invokes start()
 <4> Create a stub that responds to the "/greeting" endpoint
 <5> Define a content type header
-<6> Response body is "hello"
+<6> Response body is "Hello RESTEasy"
 <7> Stub responds to "/greeting/list" endpoint.
 <8> Content type is "application/json"
 <9> Stub responds to /greeting/list/random.

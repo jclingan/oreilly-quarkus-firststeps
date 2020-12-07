@@ -52,7 +52,7 @@ mvn quarkus:dev -Dsuspend=y
 [source,shell script]
 ----
 cd working                                                 # <1>
-mvn io.quarkus:quarkus-maven-plugin:1.9.0.Final:create \   # <2>
+mvn io.quarkus:quarkus-maven-plugin:1.10.2.Final:create \  # <2>
     -DprojectGroupId=org.acme \
     -DprojectArtifactId=firststeps \
     -DclassName="org.acme.FirstStepsResource" \
